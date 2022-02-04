@@ -24,7 +24,6 @@ public class GetFollowersHandler extends Handler {
 
     @Override
     public void handleMessage(@NonNull Message msg) {
-
         boolean success = msg.getData().getBoolean(GetFollowersTask.SUCCESS_KEY);
         if (success) {
             List<User> followers = (List<User>) msg.getData().getSerializable(PagedTask.ITEMS_KEY);
