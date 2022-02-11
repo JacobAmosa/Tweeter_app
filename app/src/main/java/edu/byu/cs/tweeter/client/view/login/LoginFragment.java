@@ -88,7 +88,7 @@ public class LoginFragment extends Fragment implements LoginPresenter.View{
     }
 
     @Override
-    public void finishSuccessfulLogin(User loggedInUser) {
+    public void finishAuthentication(User loggedInUser) {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.putExtra(MainActivity.CURRENT_USER_KEY, loggedInUser);
 
@@ -97,7 +97,6 @@ public class LoginFragment extends Fragment implements LoginPresenter.View{
         Toast.makeText(getContext(), "Hello " + Cache.getInstance().getCurrUser().getName(), Toast.LENGTH_LONG).show();
         startActivity(intent);
     }
-
 
 
 }

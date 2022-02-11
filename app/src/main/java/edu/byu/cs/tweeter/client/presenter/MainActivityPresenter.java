@@ -1,22 +1,16 @@
 package edu.byu.cs.tweeter.client.presenter;
 
-import android.widget.Toast;
-
-import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
-import edu.byu.cs.client.R;
 import edu.byu.cs.shared.model.domain.Status;
 import edu.byu.cs.shared.model.domain.User;
 import edu.byu.cs.tweeter.client.cache.Cache;
 import edu.byu.cs.tweeter.client.model.service.FollowService;
 import edu.byu.cs.tweeter.client.model.service.StatusService;
 import edu.byu.cs.tweeter.client.model.service.UserService;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowersCountTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.PostStatusTask;
-import edu.byu.cs.tweeter.client.view.main.MainActivity;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.BooleanNotificationObserver;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.CountNotificationObserver;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNotificationObserver;
 
 public class MainActivityPresenter {
 
@@ -71,7 +65,7 @@ public class MainActivityPresenter {
         followService.getFollowingCountTask(Cache.getInstance().getCurrUserAuthToken(), selectedUser, executor, new GetFollowingCountObserver());
     }
 
-    public class GetFollowingCountObserver implements FollowService.GetFollowingCountObserver{
+    public class GetFollowingCountObserver implements CountNotificationObserver{
         @Override
         public void handleSuccess(int count) {
             view.setFolloweeCount(count);
@@ -89,7 +83,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public class GetFollowersCountObserver implements FollowService.GetFollowersCountObserver{
+    public class GetFollowersCountObserver implements CountNotificationObserver {
         @Override
         public void handleSuccess(int count) {
             view.setFollowerCount(count);
@@ -107,7 +101,7 @@ public class MainActivityPresenter {
     }
 
 
-    public class GetCreateStatusObserver implements StatusService.GetCreateStatusObserver {
+    public class GetCreateStatusObserver implements SimpleNotificationObserver{
         @Override
         public void handleSuccess() {
             view.finishStatusCreation();
@@ -124,7 +118,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public class GetLogoutObserver implements UserService.GetLogoutObserver {
+    public class GetLogoutObserver implements SimpleNotificationObserver {
 
         @Override
         public void handleSuccess() {
@@ -142,7 +136,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public class GetIsFollowerObserver implements FollowService.GetIsFollowerObserver {
+    public class GetIsFollowerObserver implements BooleanNotificationObserver {
         @Override
         public void handleSuccess(boolean isFollower) {
             view.setFollowButton(isFollower);
@@ -159,7 +153,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public class GetMainUnfollowObserver implements FollowService.GetMainUnfollowObserver{
+    public class GetMainUnfollowObserver implements SimpleNotificationObserver {
         @Override
         public void handleSuccess() {
             view.updateUserInfo(true);
@@ -176,7 +170,7 @@ public class MainActivityPresenter {
         }
     }
 
-    public class GetMainFollowObserver implements FollowService.GetMainFollowObserver{
+    public class GetMainFollowObserver implements SimpleNotificationObserver{
         @Override
         public void handleSuccess() {
             view.updateUserInfo(false);

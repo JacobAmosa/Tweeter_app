@@ -1,8 +1,6 @@
 package edu.byu.cs.tweeter.client.model.service;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import edu.byu.cs.shared.model.domain.AuthToken;
 import edu.byu.cs.shared.model.domain.User;
@@ -13,110 +11,73 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingCountT
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.GetFollowingTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.IsFollowerTask;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.UnfollowTask;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.GetFollowersCountHandler;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.GetFollowersHandler;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.GetFollowingCountHandler;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.GetFollowingHandler;
-import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.IsFollowerHandler;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.BooleanNotificationHandler;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.CountNotificationHandler;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.PagedNotificationHandler;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.handler.SimpleNotificationHandler;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.BooleanNotificationObserver;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.CountNotificationObserver;
+import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.PagedNotificationObserver;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNotificationObserver;
 
 public class FollowService {
+
     //    *****************************   FollowingPresenter ***************************************
 
-    public interface GetFollowingObserver {
-        void handleSuccess(List<User> followees, boolean hasMorePages);
-        void handleFailure(String message);
-        void handleException(Exception exception);
-    }
-
-    public void getFollowing(AuthToken currUserAuthToken, User user, int pageSize, User lastFollowee, GetFollowingObserver getFollowingObserver) {
+    public void getFollowing(AuthToken currUserAuthToken, User user, int pageSize, User lastFollowee, PagedNotificationObserver getFollowingObserver) {
         GetFollowingTask getFollowingTask = new GetFollowingTask(currUserAuthToken,
-                user, pageSize, lastFollowee, new GetFollowingHandler(getFollowingObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getFollowingTask);
+                user, pageSize, lastFollowee, new PagedNotificationHandler<User>(getFollowingObserver));
+        new Service(getFollowingTask);
     }
 
     //    *****************************   FollowersPresenter ***************************************
 
-    public interface GetFollowersObserver {
-        void handleSuccess(List<User> followers, boolean hasMorePages);
-        void handleFailure(String message);
-        void handleException(Exception exception);
-    }
-
-    public void getFollowers(AuthToken currUserAuthToken, User user, int pageSize, User lastFollower, GetFollowersObserver getFollowersObserver) {
+    public void getFollowers(AuthToken currUserAuthToken, User user, int pageSize, User lastFollower, PagedNotificationObserver getFollowersObserver) {
         GetFollowersTask getFollowersTask = new GetFollowersTask(currUserAuthToken,
-                user, pageSize, lastFollower, new GetFollowersHandler(getFollowersObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(getFollowersTask);
+                user, pageSize, lastFollower, new PagedNotificationHandler<User>(getFollowersObserver));
+        new Service(getFollowersTask);
     }
 
     //    *****************************   MainActivity IsFollower ***************************************
 
-    public interface GetIsFollowerObserver {
-        void handleSuccess(boolean isFollower);
-        void handleFailure(String message);
-        void handleException(Exception exception);
-    }
-
-    public void isFollowerTask(AuthToken currUserAuthToken, User currUser, User selectedUser, GetIsFollowerObserver getIsFollowerObserver) {
+    public void isFollowerTask(AuthToken currUserAuthToken, User currUser, User selectedUser, BooleanNotificationObserver getIsFollowerObserver) {
         IsFollowerTask isFollowerTask = new IsFollowerTask(currUserAuthToken,
-                currUser, selectedUser, new IsFollowerHandler(getIsFollowerObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(isFollowerTask);
+                currUser, selectedUser, new BooleanNotificationHandler(getIsFollowerObserver));
+        new Service(isFollowerTask);
     }
 
 
     //    *****************************   MainActivity unFollow ***************************************
 
-    public interface GetMainUnfollowObserver extends SimpleNotificationObserver{}
-
-    public void unfollowUserTask(AuthToken currUserAuthToken, User selectedUser, GetMainUnfollowObserver GetMainUnfollowObserver) {
+    public void unfollowUserTask(AuthToken currUserAuthToken, User selectedUser, SimpleNotificationObserver GetMainUnfollowObserver) {
         UnfollowTask unfollowTask = new UnfollowTask(currUserAuthToken,
                 selectedUser, new SimpleNotificationHandler(GetMainUnfollowObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(unfollowTask);
+        new Service(unfollowTask);
     }
 
 
     //    *****************************   MainActivity follow ***************************************
 
-    public interface GetMainFollowObserver extends SimpleNotificationObserver {}
-
-    public void followUserTask(AuthToken currUserAuthToken, User selectedUser, GetMainFollowObserver getMainFollowObserver) {
+    public void followUserTask(AuthToken currUserAuthToken, User selectedUser, SimpleNotificationObserver getMainFollowObserver) {
         FollowTask followTask = new FollowTask(currUserAuthToken,
                 selectedUser, new SimpleNotificationHandler(getMainFollowObserver));
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-        executor.execute(followTask);
+        new Service(followTask);
     }
 
     //    *****************************   MainActivity GetFollowersCount ***************************************
 
-    public interface GetFollowersCountObserver {
-        void handleSuccess(int count);
-        void handleFailure(String message);
-        void handleException(Exception exception);
-    }
-
-    public void getFollowersCountTask(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, GetFollowersCountObserver getFollowersCountObserver) {
+    public void getFollowersCountTask(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, CountNotificationObserver getFollowersCountObserver) {
         GetFollowersCountTask followersCountTask = new GetFollowersCountTask(currUserAuthToken,
-                selectedUser, new GetFollowersCountHandler(getFollowersCountObserver));
-        executor.execute(followersCountTask);
+                selectedUser, new CountNotificationHandler(getFollowersCountObserver));
+        new Service(followersCountTask);
     }
 
     //    *****************************   MainActivity GetFollowingCount ***************************************
 
-    public interface GetFollowingCountObserver {
-        void handleSuccess(int count);
-        void handleFailure(String message);
-        void handleException(Exception exception);
-    }
-
-    public void getFollowingCountTask(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, GetFollowingCountObserver getFollowingCountObserver) {
+    public void getFollowingCountTask(AuthToken currUserAuthToken, User selectedUser, ExecutorService executor, CountNotificationObserver getFollowingCountObserver) {
         GetFollowingCountTask followingCountTask = new GetFollowingCountTask(currUserAuthToken,
-                selectedUser, new GetFollowingCountHandler(getFollowingCountObserver));
-        executor.execute(followingCountTask);
+                selectedUser, new CountNotificationHandler(getFollowingCountObserver));
+        new Service(followingCountTask);
     }
 
 

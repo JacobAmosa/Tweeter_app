@@ -94,7 +94,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
         storyRecyclerView.addOnScrollListener(new StoryRecyclerViewPaginationScrollListener(layoutManager));
 
         presenter = new StoryPresenter(this);
-        presenter.getStory(user);
+        presenter.loadMoreItems(user);
 
         return view;
     }
@@ -105,14 +105,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
     }
 
     @Override
-    public void changeActivity(User user) {
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
-        startActivity(intent);
-    }
-
-    @Override
-    public void setLoadingStatus(Boolean value) {
+    public void setLoadingStatus(boolean value) {
         if(value){
             storyRecyclerViewAdapter.addLoadingFooter();
         } else {
@@ -121,8 +114,15 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
     }
 
     @Override
-    public void addStatuses(List<Status> statuses) {
-        storyRecyclerViewAdapter.addItems(statuses);
+    public void addItems(List items) {
+        storyRecyclerViewAdapter.addItems(items);
+    }
+
+    @Override
+    public void getUser(User user) {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
+        startActivity(intent);
     }
 
 
@@ -154,7 +154,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.getUserProfile(userAlias.getText().toString());
+                    presenter.getUser(userAlias.getText().toString());
                     Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                 }
             });
@@ -191,7 +191,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
                             startActivity(intent);
                         } else {
-                            presenter.getClickableUser(clickable);
+                            presenter.getUser(clickable);
                             Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -327,7 +327,7 @@ public class StoryFragment extends Fragment implements StoryPresenter.View{
          * data.
          */
         void loadMoreItems() {
-            presenter.getStory(user);
+            presenter.loadMoreItems(user);
         }
 
         /**

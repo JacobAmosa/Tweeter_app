@@ -88,7 +88,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
         feedRecyclerView.addOnScrollListener(new FeedRecyclerViewPaginationScrollListener(layoutManager));
 
         presenter = new FeedPresenter(this);
-        presenter.getFeed(user);
+        presenter.loadMoreItems(user);
 
         return view;
     }
@@ -96,13 +96,6 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
     @Override
     public void displayErrorMessage(String message) {
         Toast.makeText(getContext(),message , Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void changeActivity(User user) {
-        Intent intent = new Intent(getContext(), MainActivity.class);
-        intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
-        startActivity(intent);
     }
 
     @Override
@@ -115,10 +108,16 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
     }
 
     @Override
-    public void addStatuses(List<Status> statuses) {
-        feedRecyclerViewAdapter.addItems(statuses);
+    public void addItems(List items) {
+        feedRecyclerViewAdapter.addItems(items);
     }
 
+    @Override
+    public void getUser(User user) {
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.putExtra(MainActivity.CURRENT_USER_KEY, user);
+        startActivity(intent);
+    }
 
     /**
      * The ViewHolder for the RecyclerView that displays the feed data.
@@ -148,7 +147,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    presenter.getUserProfile(userAlias.getText().toString());
+                    presenter.getUser(userAlias.getText().toString());
                     Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                 }
             });
@@ -183,7 +182,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
                             Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(clickable));
                             startActivity(intent);
                         } else {
-                            presenter.getUserProfile(clickable);
+                            presenter.getUser(clickable);
                             Toast.makeText(getContext(), "Getting user's profile...", Toast.LENGTH_LONG).show();
                         }
                     }
@@ -317,7 +316,7 @@ public class FeedFragment extends Fragment implements FeedPresenter.View{
          * data.
          */
         void loadMoreItems(){
-            presenter.getFeed(user);
+            presenter.loadMoreItems(user);
         }
 
         /**
