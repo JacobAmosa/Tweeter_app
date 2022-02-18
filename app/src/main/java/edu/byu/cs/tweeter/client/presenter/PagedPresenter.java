@@ -5,7 +5,6 @@ import java.util.List;
 import edu.byu.cs.shared.model.domain.AuthToken;
 import edu.byu.cs.shared.model.domain.User;
 import edu.byu.cs.tweeter.client.cache.Cache;
-import edu.byu.cs.tweeter.client.model.service.Service;
 import edu.byu.cs.tweeter.client.model.service.UserService;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.PagedNotificationObserver;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.UserNotificationObserver;

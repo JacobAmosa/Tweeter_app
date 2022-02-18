@@ -44,6 +44,8 @@ public class Status implements Serializable {
         this.user = user;
     }
 
+    public void setPost(String post){ this.post = post; }
+
     public User getUser() {
         return user;
     }

@@ -12,19 +12,16 @@ import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.BooleanNo
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.CountNotificationObserver;
 import edu.byu.cs.tweeter.client.model.service.backgroundTask.observer.SimpleNotificationObserver;
 
-public class MainActivityPresenter {
-
-    private View view;
+public class MainActivityPresenter extends Presenter<MainActivityPresenter.View> {
     private FollowService followService;
     private StatusService statusService;
     private UserService userService;
 
-    public interface View {
-        void displayErrorMessage(String message);
+    public interface View extends Presenter.View{
         void setFollowButton(boolean isFollower);
         void updateUserInfo(boolean follow);
-        void finishStatusCreation();
-        void finishLogout();
+        void finishStatusCreation(String message);
+        void finishLogout(String message);
         void setFollowerCount(int count);
         void setFolloweeCount(int count);
     }
@@ -32,8 +29,20 @@ public class MainActivityPresenter {
     public MainActivityPresenter(View view){
         this.view = view;
         this.followService = new FollowService();
-        this.statusService = new StatusService();
-        this.userService = new UserService();
+    }
+
+    protected StatusService getStatusService(){
+        if (statusService == null){
+            return new StatusService();
+        }
+        return statusService;
+    }
+
+    protected UserService getUserService(){
+        if (userService == null){
+            return new UserService();
+        }
+        return userService;
     }
 
     public void isFollower(User selectedUser) {
@@ -49,13 +58,12 @@ public class MainActivityPresenter {
     }
 
     public void logoutUser() {
-        userService.logoutUserTask(Cache.getInstance().getCurrUserAuthToken(), new GetLogoutObserver());
+        getUserService().logoutUserTask(Cache.getInstance().getCurrUserAuthToken(), new GetLogoutObserver());
     }
 
     public void createStatus(Status newStatus) {
-        statusService.createStatusTask(Cache.getInstance().getCurrUserAuthToken(), newStatus, new GetCreateStatusObserver());
+        getStatusService().createStatusTask(Cache.getInstance().getCurrUserAuthToken(), newStatus, new GetCreateStatusObserver());
     }
-
 
     public void getFollowersCount(User selectedUser, ExecutorService executor) {
         followService.getFollowersCountTask(Cache.getInstance().getCurrUserAuthToken(), selectedUser, executor, new GetFollowersCountObserver());
@@ -104,7 +112,7 @@ public class MainActivityPresenter {
     public class GetCreateStatusObserver implements SimpleNotificationObserver{
         @Override
         public void handleSuccess() {
-            view.finishStatusCreation();
+            view.finishStatusCreation("Successfully Posted!");
         }
 
         @Override
@@ -122,7 +130,7 @@ public class MainActivityPresenter {
 
         @Override
         public void handleSuccess() {
-            view.finishLogout();
+            view.finishLogout("Logging Out...");
         }
 
         @Override

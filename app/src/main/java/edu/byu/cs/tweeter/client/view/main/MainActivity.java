@@ -297,14 +297,14 @@ public class MainActivity extends AppCompatActivity implements StatusDialogFragm
     }
 
     @Override
-    public void finishStatusCreation() {
+    public void finishStatusCreation(String message) {
         postingToast.cancel();
-        Toast.makeText(MainActivity.this, "Successfully Posted!", Toast.LENGTH_LONG).show();
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
     }
 
     @Override
-    public void finishLogout() {
-        logOutToast.cancel();
+    public void finishLogout(String message) {
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
         logoutUser();
     }
 
